@@ -2,28 +2,140 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Мой сайт на Arch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Угадай число!</title>
     <style>
         body {
-            background-color: #1a1b26; /* Цвет в стиле терминала */
-            color: #a9b1d6;
-            font-family: sans-serif;
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1b26; /* Темный фон Арча */
+            color: #a9b1d6; /* Светлый текст */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
         }
-        h1 { color: #7aa2f7; }
-        .status { border: 1px solid #7aa2f7; padding: 10px; border-radius: 5px; }
+        .game-container {
+            background-color: #2e3048; /* Контрастный фон для контейнера */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            color: #7aa2f7; /* Заголовок */
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        input[type="number"] {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #7aa2f7;
+            border-radius: 5px;
+            width: calc(100% - 22px);
+            background-color: #1a1b26;
+            color: #a9b1d6;
+            font-size: 16px;
+            text-align: center;
+        }
+        button {
+            background-color: #bb9af7; /* Кнопка */
+            color: #1a1b26;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #8c73c3; /* При наведении */
+        }
+        .message {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #a9b1d6;
+        }
+        .attempts {
+            color: #e0af68;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>Привет! Это мой первый сайт</h1>
-    <div class="status">
-        <p>Запущено из под Arch Linux</p>
-        <p>Хостинг: GitHub Pages</p>
+    <div class="game-container">
+        <h1>Угадай число от 1 до 10!</h1>
+        <p>Я загадал число. Попробуй угадать его.</p>
+        <input type="number" id="guessInput" min="1" max="10" placeholder="Введи число">
+        <button id="checkButton">Проверить!</button>
+        <p class="message" id="message"></p>
+        <p class="attempts" id="attempts"></p>
+        <button id="resetButton" style="display: none; margin-top: 10px;">Начать заново</button>
     </div>
+
+    <script>
+        // === ЛОГИКА ИГРЫ (JavaScript) ===
+        let randomNumber = Math.floor(Math.random() * 10) + 1; // Загадываем число от 1 до 10
+        let attempts = 0;
+        const guessInput = document.getElementById('guessInput');
+        const checkButton = document.getElementById('checkButton');
+        const message = document.getElementById('message');
+        const attemptsDisplay = document.getElementById('attempts');
+        const resetButton = document.getElementById('resetButton');
+
+        checkButton.addEventListener('click', checkGuess);
+        resetButton.addEventListener('click', resetGame);
+
+        function checkGuess() {
+            const userGuess = parseInt(guessInput.value); // Получаем число из поля ввода
+
+            if (isNaN(userGuess) || userGuess < 1 || userGuess > 10) {
+                message.textContent = 'Пожалуйста, введи число от 1 до 10.';
+                message.style.color = '#e0af68'; // Желтый для предупреждений
+                return; // Выходим из функции
+            }
+
+            attempts++;
+            attemptsDisplay.textContent = `Попыток: ${attempts}`;
+
+            if (userGuess === randomNumber) {
+                message.textContent = `Поздравляю! Ты угадал число ${randomNumber} за ${attempts} попыток!`;
+                message.style.color = '#73daca'; // Зеленый для успеха
+                endGame(true);
+            } else if (userGuess < randomNumber) {
+                message.textContent = 'Слишком мало! Попробуй еще.';
+                message.style.color = '#bb9af7'; // Фиолетовый
+            } else {
+                message.textContent = 'Слишком много! Попробуй еще.';
+                message.style.color = '#bb9af7'; // Фиолетовый
+            }
+            guessInput.value = ''; // Очищаем поле ввода
+            guessInput.focus(); // Возвращаем фокус на поле ввода
+        }
+
+        function endGame(won) {
+            guessInput.disabled = true; // Отключаем поле ввода
+            checkButton.disabled = true; // Отключаем кнопку проверки
+            resetButton.style.display = 'block'; // Показываем кнопку "Начать заново"
+        }
+
+        function resetGame() {
+            randomNumber = Math.floor(Math.random() * 10) + 1; // Загадываем новое число
+            attempts = 0;
+            message.textContent = '';
+            attemptsDisplay.textContent = '';
+            guessInput.value = '';
+            guessInput.disabled = false;
+            checkButton.disabled = false;
+            resetButton.style.display = 'none';
+            guessInput.focus();
+        }
+    </script>
 </body>
 </html>
